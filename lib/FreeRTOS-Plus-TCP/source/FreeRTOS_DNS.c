@@ -114,12 +114,12 @@ static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer, const char *pcH
 /*
  * Simple routine that jumps over the NAME field of a resource record.
  */
-static uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen );
+uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen );
 
 /*
  * Process a response packet from a DNS server.
  */
-static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier );
+uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier );
 
 /*
  * Prepare and send a message to a DNS server.  'xReadTimeOut_ms' will be passed as
@@ -139,7 +139,7 @@ static uint32_t prvGetHostByName( const char *pcHostName, TickType_t xIdentifier
 #endif /* ipconfigUSE_NBNS */
 
 #if( ipconfigUSE_DNS_CACHE == 1 )
-	static uint8_t *prvReadNameField( uint8_t *pucByte, size_t xSourceLen, char *pcName, size_t xLen );
+	uint8_t *prvReadNameField( uint8_t *pucByte, size_t xSourceLen, char *pcName, size_t xLen );
 	static void prvProcessDNSCache( const char *pcName, uint32_t *pulIP, uint32_t ulTTL, BaseType_t xLookUp );
 
 	typedef struct xDNS_CACHE_TABLE_ROW
@@ -672,8 +672,9 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 
 #if( ipconfigUSE_DNS_CACHE == 1 )
 
-	static uint8_t *prvReadNameField( uint8_t *pucByte, size_t xSourceLen, char *pcName, size_t xDestLen )
+	uint8_t *prvReadNameField( uint8_t *pucByte, size_t xSourceLen, char *pcName, size_t xDestLen )
 	{
+
 	size_t xNameLen = 0;
 	BaseType_t xCount;
 
@@ -741,13 +742,12 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 				}
 			}
 		}
-
 		return pucByte;
 	}
 #endif	/* ipconfigUSE_DNS_CACHE == 1 */
 /*-----------------------------------------------------------*/
 
-static uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen )
+uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen )
 {
 	size_t xChunkLength;
 
@@ -855,7 +855,7 @@ DNSMessage_t *pxDNSMessageHeader;
 #endif /* ipconfigUSE_NBNS */
 /*-----------------------------------------------------------*/
 
-static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier )
+uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier )
 {
 DNSMessage_t *pxDNSMessageHeader;
 DNSAnswerRecord_t *pxDNSAnswerRecord;
