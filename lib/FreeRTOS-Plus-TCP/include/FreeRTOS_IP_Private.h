@@ -643,7 +643,7 @@ typedef struct XSOCKET
 	/* Before accessing any member of this structure, it should be confirmed */
 	/* that the protocol corresponds with the type of structure */
 
-	union
+	struct
 	{
 		IPUDPSocket_t xUDP;
 		#if( ipconfigUSE_TCP == 1 )
