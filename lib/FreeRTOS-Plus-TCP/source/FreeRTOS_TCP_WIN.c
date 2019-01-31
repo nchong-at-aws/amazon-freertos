@@ -206,7 +206,7 @@ extern void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewL
 
 /* List of free TCP segments. */
 #if( ipconfigUSE_TCP_WIN == 1 )
-	static List_t xSegmentList;
+	List_t xSegmentList;
 #endif
 
 /* Logging verbosity level. */
