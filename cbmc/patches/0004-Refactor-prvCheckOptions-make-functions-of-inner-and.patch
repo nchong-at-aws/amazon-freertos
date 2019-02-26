@@ -1,7 +1,7 @@
 From dbadac21035a2bff514e4fc51e2876b15ddecd8c Mon Sep 17 00:00:00 2001
 From: Kareem Khazem <karkhaz@amazon.com>
 Date: Mon, 21 Jan 2019 13:05:12 -0800
-Subject: [PATCH 4/5] Refactor prvCheckOptions: make functions of inner and
+Subject: [PATCH 4/7] Refactor prvCheckOptions: make functions of inner and
  outer loops.
 
 ---
