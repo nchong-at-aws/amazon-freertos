@@ -22,52 +22,46 @@
 
 #include "cbmc.h"
 
-// Used in specification and abstraction of CheckOptions inner and outer loops
+BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const ppucPtr,
+					  const unsigned char ** const ppucLast,
+					  FreeRTOS_Socket_t ** const ppxSocket,
+					  TCPWindow_t ** const ppxTCPWindow);
+
 // Given unconstrained values in harness
 size_t buffer_size;
 uint8_t *EthernetBuffer;
 
-// Refactored CheckOptions outer loop
-// Loop variables passed by reference: VAL(var) is (*var).
-enum CBMC_LOOP_CONDITION prvCheckOptions_outer(unsigned char *VAL(pucPtr),
-					       unsigned char *VAL(pucLast),
-					       UBaseType_t VAL(uxNewMSS),
-					       FreeRTOS_Socket_t *VAL(pxSocket),
-					       TCPWindow_t *VAL(pxTCPWindow));
-
-// Abstraction of CheckOptions inner loop used on proof of outer loop
-// Loop variables passed by reference: VAL(var) is (*var).
-void prvCheckOptions_inner(unsigned char *VAL(pucPtr),
-			   FreeRTOS_Socket_t *VAL(pxSocket),
-			   unsigned char VAL(len))
+void prvSkipPastRemainingOptions( const unsigned char ** const ppucPtr,
+				  FreeRTOS_Socket_t ** const ppxSocket,
+				  unsigned char * const pucLen )
 {
   // Preconditions
 
   // pucPtr is a valid pointer
-  __CPROVER_assert(EthernetBuffer <= VAL(pucPtr) &&
-		   VAL(pucPtr) < EthernetBuffer + buffer_size,
+  __CPROVER_assert(EthernetBuffer <= OBJ(ppucPtr) &&
+		   OBJ(ppucPtr) < EthernetBuffer + buffer_size,
 		   "pucPtr is a valid pointer");
   // pucPtr + 8 is a valid pointer
-  __CPROVER_assert(EthernetBuffer <= VAL(pucPtr) + 8 &&
-		   VAL(pucPtr) + 8 <= EthernetBuffer + buffer_size,
+  __CPROVER_assert(EthernetBuffer <= OBJ(ppucPtr) + 8 &&
+		   OBJ(ppucPtr) + 8 <= EthernetBuffer + buffer_size,
 		   "pucPtr+8 is a valid pointer");
   // len >= 8
-  __CPROVER_assert(VAL(len) >= 8, "len >= 8");
+  __CPROVER_assert(OBJ(pucLen) >= 8, "len >= 8");
 
   // Record initial values
-  SAVE_OLDVAL(pucPtr, unsigned char *);
-  SAVE_OLDVAL(len, unsigned char);
+  SAVE_OLDOBJ(ppucPtr, unsigned char *);
+  SAVE_OLDOBJ(pucLen, unsigned char);
 
   // Model loop body
-  VAL(pucPtr) += 8;
-  VAL(len) -= 8;
+  OBJ(ppucPtr) += 8;
+  OBJ(pucLen) -= 8;
 
   // Postconditions
 
-  __CPROVER_assume(VAL(pucPtr) == OLDVAL(pucPtr) + 8);
-  __CPROVER_assume(VAL(len) == OLDVAL(len) - 8);
-  __CPROVER_assume(EthernetBuffer <= VAL(pucPtr) &&
-		   VAL(pucPtr) <= EthernetBuffer + buffer_size);
+  __CPROVER_assume(OBJ(ppucPtr) == OLDOBJ(ppucPtr) + 8);
+  __CPROVER_assume(OBJ(pucLen) == OLDOBJ(pucLen) - 8);
+  __CPROVER_assume(EthernetBuffer <= OBJ(ppucPtr) &&
+		   OBJ(ppucPtr) <= EthernetBuffer + buffer_size);
 }
 
 // Proof of CheckOptions outer loop
@@ -113,19 +107,17 @@ void harness()
   __CPROVER_assume(pucPtr < pucLast);
 
   // Record initial values
-  SAVE_OLD(pucPtr, uint8_t *);
-  SAVE_OLD(pucLast, uint8_t *);
+  SAVE_OLDVAL(pucPtr, uint8_t *);
+  SAVE_OLDVAL(pucLast, uint8_t *);
 
   // Loop variables passed by reference
   // Return value describes loop exit: break or continue
-  enum CBMC_LOOP_CONDITION rc =
-    prvCheckOptions_outer(&pucPtr, &pucLast, &uxNewMSS, &pxSocket,
-			  &pxTCPWindow);
+  BaseType_t rc =
+    prvSingleStepTCPHeaderOptions(&pucPtr, &pucLast, &pxSocket, &pxTCPWindow);
 
   // Postconditions
-  __CPROVER_assert(rc == CBMC_LOOP_BREAK || OLD(pucPtr) < pucPtr,
-		   "pucPtr advanced");
-  __CPROVER_assert(pucLast == OLD(pucLast), "pucLast unchanged");
+  __CPROVER_assert(rc == pdFALSE || OLDVAL(pucPtr) < pucPtr, "pucPtr advanced");
+  __CPROVER_assert(pucLast == OLDVAL(pucLast), "pucLast unchanged");
   __CPROVER_assert(pucPtr <= pucLast, "pucPtr <= pucLast");
 
 }

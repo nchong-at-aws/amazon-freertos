@@ -8,7 +8,7 @@ BUFFER_SIZE = 100
 
 UNWINDING = \
 	--unwind $(UNWIND) \
-	--unwindset prvCheckOptions_outer.0:32 \
+	--unwindset prvSingleStepTCPHeaderOptions.2:32 \
 	--unwinding-assertions
 
 ABSTRACTIONS = \

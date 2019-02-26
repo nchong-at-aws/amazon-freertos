@@ -22,21 +22,20 @@
 
 #include "cbmc.h"
 
+void prvCheckOptions( FreeRTOS_Socket_t *pxSocket,
+		      NetworkBufferDescriptor_t *pxNetworkBuffer );
+
 // Used in specification and abstraction of CheckOptions inner and outer loops
 // Given unconstrained values in harness
 size_t buffer_size;
 uint8_t *EthernetBuffer;
 
-void prvCheckOptions(FreeRTOS_Socket_t *pxSocket,
-		     NetworkBufferDescriptor_t *pxNetworkBuffer );
-
 // Abstraction of CheckOptions outer loop used in proof of CheckOptions
 // Loop variables passed by reference: VAL(var) is (*var).
-enum CBMC_LOOP_CONDITION prvCheckOptions_outer(unsigned char *VAL(pucPtr),
-					       unsigned char *VAL(pucLast),
-					       UBaseType_t VAL(uxNewMSS),
-					       FreeRTOS_Socket_t *VAL(pxSocket),
-					       TCPWindow_t *VAL(pxTCPWindow))
+BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const ppucPtr,
+					  const unsigned char ** const ppucLast,
+					  FreeRTOS_Socket_t ** const ppxSocket,
+					  TCPWindow_t ** const ppxTCPWindow)
 {
   // CBMC pointer model (obviously true)
   __CPROVER_assume(buffer_size < CBMC_MAX_OBJECT_SIZE);
@@ -44,34 +43,36 @@ enum CBMC_LOOP_CONDITION prvCheckOptions_outer(unsigned char *VAL(pucPtr),
   // Preconditions
 
   // pucPtr is a valid pointer
-  __CPROVER_assert(EthernetBuffer <= VAL(pucPtr) &&
-		   VAL(pucPtr) < EthernetBuffer + buffer_size,
+  __CPROVER_assert(EthernetBuffer <= OBJ(ppucPtr) &&
+		   OBJ(ppucPtr) < EthernetBuffer + buffer_size,
 		   "pucPtr is a valid pointer");
   // pucLast is a valid pointer (or one past)
-  __CPROVER_assert(EthernetBuffer <= VAL(pucLast) &&
-		   VAL(pucLast) <= EthernetBuffer + buffer_size,
+  __CPROVER_assert(EthernetBuffer <= OBJ(ppucLast) &&
+		   OBJ(ppucLast) <= EthernetBuffer + buffer_size,
 		   "pucLast is a valid pointer");
   // pucPtr is before pucLast
-  __CPROVER_assert(VAL(pucPtr) < VAL(pucLast),
+  __CPROVER_assert(OBJ(ppucPtr) < OBJ(ppucLast),
 		   "pucPtr < pucLast");
 
   // Record initial values
-  SAVE_OLDVAL(pucPtr, unsigned char *);
-  SAVE_OLDVAL(pucLast, unsigned char *);
+  SAVE_OLDOBJ(ppucPtr, unsigned char *);
+  SAVE_OLDOBJ(ppucLast, unsigned char *);
 
   // Model loop body
   size_t offset;
-  enum CBMC_LOOP_CONDITION rc;
-  VAL(pucPtr) += offset;
+  BaseType_t rc;
+  OBJ(ppucPtr) += offset;
 
   // Postconditions
 
+  // rc is boolean
+  __CPROVER_assume(rc == pdTRUE || rc == pdFALSE);
   // pucPtr advanced
-  __CPROVER_assume(rc == CBMC_LOOP_BREAK || OLDVAL(pucPtr) < VAL(pucPtr));
+  __CPROVER_assume(rc == pdFALSE || OLDOBJ(ppucPtr) < OBJ(ppucPtr));
   // pucLast unchanged
-  __CPROVER_assume(VAL(pucLast) == OLDVAL(pucLast));
+  __CPROVER_assume(OBJ(ppucLast) == OLDOBJ(ppucLast));
   // pucPtr <= pucLast
-  __CPROVER_assume(VAL(pucPtr) <= OLDVAL(pucLast));
+  __CPROVER_assume(OBJ(ppucPtr) <= OBJ(ppucLast));
 
   return rc;
 }

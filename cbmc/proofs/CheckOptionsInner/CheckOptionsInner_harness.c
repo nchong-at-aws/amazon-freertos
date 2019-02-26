@@ -22,18 +22,14 @@
 
 #include "cbmc.h"
 
-// Used in specification and abstraction of CheckOptions inner and outer loops
+void prvSkipPastRemainingOptions( const unsigned char ** const ppucPtr,
+				  FreeRTOS_Socket_t ** const ppxSocket,
+				  unsigned char * const pucLen );
+
 // Given unconstrained values in harness
 size_t buffer_size;
 uint8_t *EthernetBuffer;
 
-// Refactored CheckOptions inner loop
-// Loop variables passed by reference: VAL(var) is (*var).
-void prvCheckOptions_inner(unsigned char *VAL(pucPtr),
-			   FreeRTOS_Socket_t *VAL(pxSocket),
-			   unsigned char VAL(len));
-
-// Proof of CheckOptions inner loop
 void harness()
 {
   // Buffer can be any buffer of size at most BUFFER_SIZE
@@ -46,8 +42,8 @@ void harness()
   size_t pucPtr_offset;
   unsigned char *pucPtr = EthernetBuffer + pucPtr_offset;
 
-  // len can be any byte
-  unsigned char len;
+  // ucLen can be any byte
+  unsigned char ucLen;
 
   // pxSocket can be any socket with some initialized values
   FreeRTOS_Socket_t xSocket;
@@ -86,23 +82,23 @@ void harness()
   // pucPtr is a valid pointer
   __CPROVER_assume(EthernetBuffer <= pucPtr &&
   		   pucPtr < EthernetBuffer + buffer_size);
-  // pucPtr + 8 is a valid pointer (xBytesRemaining > len)
+  // pucPtr + 8 is a valid pointer (xBytesRemaining > ucLen)
   __CPROVER_assume(EthernetBuffer <= pucPtr + 8 &&
   		   pucPtr + 8 <= EthernetBuffer + buffer_size);
-  // len >= 8 (while loop condition)
-  __CPROVER_assume(len >= 8);
+  // ucLen >= 8 (while loop condition)
+  __CPROVER_assume(ucLen >= 8);
 
   // Record initial values
-  SAVE_OLD(pucPtr, unsigned char*);
-  SAVE_OLD(len, unsigned char);
+  SAVE_OLDVAL(pucPtr, unsigned char *);
+  SAVE_OLDVAL(ucLen, unsigned char);
 
   // Loop variables passed by reference
-  prvCheckOptions_inner(&pucPtr, &pxSocket, &len);
+  prvSkipPastRemainingOptions(&pucPtr, &pxSocket, &ucLen);
 
   // Postconditions
 
-  __CPROVER_assert(pucPtr == OLD(pucPtr) + 8, "pucPtr advanced");
-  __CPROVER_assert(len == OLD(len) - 8, "len decremented");
+  __CPROVER_assert(pucPtr == OLDVAL(pucPtr) + 8, "pucPtr advanced");
+  __CPROVER_assert(ucLen == OLDVAL(ucLen) - 8, "ucLen decremented");
   __CPROVER_assert(EthernetBuffer <= pucPtr &&
 		   pucPtr <= EthernetBuffer + buffer_size,
 		   "pucPtr a valid pointer");
