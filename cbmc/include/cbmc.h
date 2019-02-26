@@ -7,14 +7,14 @@ enum CBMC_LOOP_CONDITION { CBMC_LOOP_BREAK, CBMC_LOOP_CONTINUE, CBMC_LOOP_RETURN
 
 // CBMC specification: capture old value for precondition/postcondition checking
 
-#define OLD(var) _old_ ## var
-#define SAVE_OLD(var,typ) const typ OLD(var) = var
+#define OLDVAL(var) _old_ ## var
+#define SAVE_OLDVAL(var,typ) const typ OLDVAL(var) = var
 
 // CBMC specification: capture old value for values passed by reference in function abstractions
 
-#define VAL(var) (*var)
-#define OLDVAL(var) _oldvar_ ## var
-#define SAVE_OLDVAL(var,typ) const typ OLDVAL(var) = VAL(var)
+#define OBJ(var) (*var)
+#define OLDOBJ(var) _oldobj_ ## var
+#define SAVE_OLDOBJ(var,typ) const typ OLDOBJ(var) = OBJ(var)
 
 // CBMC debugging: printfs for expressions
 

@@ -226,3 +226,14 @@ launch-clean:
 
 launch-veryclean: launch-clean
 	$(RM) -r $(ENTRY)-[0-9]*-[0-9]*
+
+################################################################
+# Build configuration file to run cbmc under cbmc-batch in CI
+
+cbmc-batch.yaml: Makefile ../Makefile.common
+	@echo "Building $@"
+	@$(RM) $@
+	@echo "jobos: $(JOBOS)" >> $@
+	@echo "cbmcflags: $(call encode_options,$(CBMCFLAGS))" >> $@
+	@echo "goto: $(ENTRY).goto" >> $@
+	@echo "expected: SUCCESSFUL" >> $@
