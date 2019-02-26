@@ -1,7 +1,7 @@
 From d1dedda854001b32401c246c824f769257400926 Mon Sep 17 00:00:00 2001
 From: Kareem Khazem <karkhaz@amazon.com>
 Date: Thu, 31 Jan 2019 15:14:07 -0800
-Subject: [PATCH 3/5] Remove static storage class from entry points
+Subject: [PATCH 3/7] Remove static storage class from entry points
 
 Many of the entry points we wish to test are marked as being static.
 This commit removes the static keyword from all entry points that we

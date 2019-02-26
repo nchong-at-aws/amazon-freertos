@@ -1,7 +1,7 @@
 From d75ae4a62b730ce6c53175c6b459222c997c2eac Mon Sep 17 00:00:00 2001
 From: Kareem Khazem <karkhaz@amazon.com>
 Date: Thu, 31 Jan 2019 15:15:43 -0800
-Subject: [PATCH 2/5] Replace MiniListItem_t with ListItem_t
+Subject: [PATCH 2/7] Replace MiniListItem_t with ListItem_t
 
 MiniListItem_t is intended to be the last element of a linked list. It
 saves space by having a payload but no `next' pointer, since there is no
