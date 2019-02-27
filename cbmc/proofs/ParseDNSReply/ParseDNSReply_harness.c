@@ -59,10 +59,10 @@ uint8_t *prvReadNameField(uint8_t *pucByte,
   // xDestLen == 254 in code
   __CPROVER_assert(xDestLen > 0, "xDestLen nonzero");
 
-  SAVE_OLD(pucByte, uint8_t *);
-  SAVE_OLD(pcName, char *);
-  SAVE_OLD(xSourceLen, size_t);
-  SAVE_OLD(xDestLen, size_t);
+  SAVE_OLDVAL(pucByte, uint8_t *);
+  SAVE_OLDVAL(pcName, char *);
+  SAVE_OLDVAL(xSourceLen, size_t);
+  SAVE_OLDVAL(xDestLen, size_t);
 
   // Function body
   char bit;
@@ -72,11 +72,11 @@ uint8_t *prvReadNameField(uint8_t *pucByte,
 
   // Postconditions
   __CPROVER_assume((rc == 0) ||
-		   (rc - OLD(pucByte) >= 1 &&
-		    rc - OLD(pucByte) <= OLD(xSourceLen) &&
-		    rc - OLD(pucByte) <= OLD(xDestLen)+2 &&
-		    pucByte == OLD(pucByte) &&
-		    pcName == OLD(pcName) &&
+		   (rc - OLDVAL(pucByte) >= 1 &&
+		    rc - OLDVAL(pucByte) <= OLDVAL(xSourceLen) &&
+		    rc - OLDVAL(pucByte) <= OLDVAL(xDestLen)+2 &&
+		    pucByte == OLDVAL(pucByte) &&
+		    pcName == OLDVAL(pcName) &&
 		    buffer <= rc && rc <= buffer + buffer_size));
 
   return rc;
@@ -100,8 +100,8 @@ uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen ){
   __CPROVER_assert(xSourceLen <= NETWORK_BUFFER_SIZE,
 		   "xSourceLen loop unwinding");
 
-  SAVE_OLD(pucByte, uint8_t *);
-  SAVE_OLD(xSourceLen, size_t);
+  SAVE_OLDVAL(pucByte, uint8_t *);
+  SAVE_OLDVAL(xSourceLen, size_t);
 
   // Function body
   char bit;
@@ -111,9 +111,9 @@ uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen ){
 
   // Postconditions
   __CPROVER_assume((rc == 0) ||
-		   (rc - OLD(pucByte) >= 1 &&
-		    rc - OLD(pucByte) <= OLD(xSourceLen) &&
-		    pucByte == OLD(pucByte) &&
+		   (rc - OLDVAL(pucByte) >= 1 &&
+		    rc - OLDVAL(pucByte) <= OLDVAL(xSourceLen) &&
+		    pucByte == OLDVAL(pucByte) &&
 		    buffer <= rc && rc <= buffer + buffer_size));
 
   return rc;

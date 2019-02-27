@@ -57,8 +57,8 @@ void harness() {
   // CBMC loop unwinding: bound depend on xSourceLen
   __CPROVER_assume(xSourceLen <= NETWORK_BUFFER_SIZE);
 
-  SAVE_OLD(pucByte, uint8_t *);
-  SAVE_OLD(xSourceLen, size_t);
+  SAVE_OLDVAL(pucByte, uint8_t *);
+  SAVE_OLDVAL(xSourceLen, size_t);
 
   // function return value is either NULL or the updated value of pucByte
   uint8_t *rc = prvSkipNameField(pucByte, xSourceLen);
@@ -67,9 +67,9 @@ void harness() {
 
   // pucByte can be advanced one position past the end of the buffer
   __CPROVER_assert((rc == 0) ||
-		   (rc - OLD(pucByte) >= 1 &&
-		    rc - OLD(pucByte) <= OLD(xSourceLen) &&
-		    pucByte == OLD(pucByte) &&
+		   (rc - OLDVAL(pucByte) >= 1 &&
+		    rc - OLDVAL(pucByte) <= OLDVAL(xSourceLen) &&
+		    pucByte == OLDVAL(pucByte) &&
 		    buffer <= rc && rc <= buffer + buffer_size),
 		   "updated pucByte");
 }

@@ -54,6 +54,24 @@ OPT += /wd4210 /wd4127 /wd4214 /wd4201 /wd4244 /wd4310
 CFLAGS += $(CFLAGS2) $(DEF) $(OPT) -m32
 
 ################################################################
+# Patching the source tree
+
+PATCHED=patched.txt
+
+$(PATCHED):
+	$(MAKE) patch
+
+patch:
+	$(MAKE) -C $(FREERTOS)/cbmc/patches patch
+	cat > $(PATCHED) < /dev/null
+
+unpatch:
+	$(MAKE) -C $(FREERTOS)/cbmc/patches unpatch
+	$(RM) $(PATCHED)
+
+.PHONY: patch unpatch
+
+################################################################
 
 # ProcessDHCPReplies needs 7 bits, most need at most 4
 # This value should be a command line macro passed down to include/cbmc.h
@@ -114,7 +132,7 @@ $(ENTRY)8.goto: $(ENTRY)7.goto
 $(ENTRY).goto: $(ENTRY)8.goto
 	cp $< $@
 
-%.goto : %.c
+%.goto : %.c $(PATCHED)
 	$(GOTO_CC) -o $@ $(INC) $(CFLAGS) $<
 
 cbmc.txt: $(ENTRY).goto
@@ -144,14 +162,13 @@ report: cbmc.txt property.xml coverage.xml
 	--block coverage.xml
 
 clean:
-	$(RM) $(CHECK_OPTIONS_OBJ) $(PROCESS_DHCP_REPLIES_OBJ) $(PARSE_DNS_REPLY_OBJ)
-	$(RM) $(GOTOS)
 	$(RM) $(OBJS) $(ENTRY).goto
 	$(RM) $(ENTRY)[0-9].goto $(ENTRY)[0-9].txt
 	$(RM) cbmc.txt property.xml coverage.xml TAGS
 	$(RM) *~ \#*
 
 veryclean: clean
+	$(MAKE) unpatch
 	$(RM) -r html
 
 .PHONY: cbmc property coverage report clean veryclean
@@ -237,3 +254,4 @@ cbmc-batch.yaml: Makefile ../Makefile.common
 	@echo "cbmcflags: $(call encode_options,$(CBMCFLAGS))" >> $@
 	@echo "goto: $(ENTRY).goto" >> $@
 	@echo "expected: SUCCESSFUL" >> $@
+

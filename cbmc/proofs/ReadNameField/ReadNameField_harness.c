@@ -77,10 +77,10 @@ void harness() {
   __CPROVER_assume(xDestLen > 0);
 
   // Save values before function call
-  SAVE_OLD(pucByte, uint8_t *);
-  SAVE_OLD(pcName, char *);
-  SAVE_OLD(xSourceLen, size_t);
-  SAVE_OLD(xDestLen, size_t);
+  SAVE_OLDVAL(pucByte, uint8_t *);
+  SAVE_OLDVAL(pcName, char *);
+  SAVE_OLDVAL(xSourceLen, size_t);
+  SAVE_OLDVAL(xDestLen, size_t);
 
   // function return value is either NULL or the updated value of pucByte
   uint8_t *rc = prvReadNameField(pucByte, xSourceLen, pcName, xDestLen);
@@ -89,11 +89,11 @@ void harness() {
 
   // pucByte can be advanced one position past the end of the buffer
   __CPROVER_assert((rc == 0) ||
-		   (rc - OLD(pucByte) >= 1 &&
-		    rc - OLD(pucByte) <= OLD(xSourceLen) &&
-		    rc - OLD(pucByte) <= OLD(xDestLen)+2 &&
-		    pucByte == OLD(pucByte) &&
-		    pcName == OLD(pcName) &&
+		   (rc - OLDVAL(pucByte) >= 1 &&
+		    rc - OLDVAL(pucByte) <= OLDVAL(xSourceLen) &&
+		    rc - OLDVAL(pucByte) <= OLDVAL(xDestLen)+2 &&
+		    pucByte == OLDVAL(pucByte) &&
+		    pcName == OLDVAL(pcName) &&
 		    buffer <= rc && rc <= buffer + buffer_size),
 		   "updated pucByte");
 }
