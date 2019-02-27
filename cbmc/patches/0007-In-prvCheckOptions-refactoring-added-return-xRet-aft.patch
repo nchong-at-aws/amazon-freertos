@@ -1,4 +1,4 @@
-From 83e75bed7dc7ec0559ef99ab716122b24d26eb76 Mon Sep 17 00:00:00 2001
+From 55db5d877451de9fe795f0489a84b33611a789e7 Mon Sep 17 00:00:00 2001
 From: "Mark R. Tuttle" <mrtuttle@amazon.com>
 Date: Tue, 26 Feb 2019 17:24:25 -0500
 Subject: [PATCH 7/7] In prvCheckOptions refactoring, added "return xRet" after
