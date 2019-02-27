@@ -1,4 +1,4 @@
-From d75ae4a62b730ce6c53175c6b459222c997c2eac Mon Sep 17 00:00:00 2001
+From dd6e01d9c7173532866e93c58fc14f1913333ed4 Mon Sep 17 00:00:00 2001
 From: Kareem Khazem <karkhaz@amazon.com>
 Date: Thu, 31 Jan 2019 15:15:43 -0800
 Subject: [PATCH 2/7] Replace MiniListItem_t with ListItem_t

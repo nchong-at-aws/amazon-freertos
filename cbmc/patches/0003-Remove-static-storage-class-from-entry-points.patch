@@ -1,4 +1,4 @@
-From d1dedda854001b32401c246c824f769257400926 Mon Sep 17 00:00:00 2001
+From 376325d4db1c86b4381b7d691356be171a6ac95d Mon Sep 17 00:00:00 2001
 From: Kareem Khazem <karkhaz@amazon.com>
 Date: Thu, 31 Jan 2019 15:14:07 -0800
 Subject: [PATCH 3/7] Remove static storage class from entry points

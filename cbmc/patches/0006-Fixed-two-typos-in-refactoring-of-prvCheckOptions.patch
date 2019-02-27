@@ -1,4 +1,4 @@
-From 228c8855e47fca9a9b2a7d4702fa2493600aef8b Mon Sep 17 00:00:00 2001
+From fe981066320a6a8f5d91c82aa372791cd2e17b98 Mon Sep 17 00:00:00 2001
 From: "Mark R. Tuttle" <mrtuttle@amazon.com>
 Date: Tue, 26 Feb 2019 17:20:06 -0500
 Subject: [PATCH 6/7] Fixed two typos in refactoring of prvCheckOptions
