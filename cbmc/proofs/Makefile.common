@@ -180,6 +180,7 @@ veryclean: clean
 
 BATCH ?= cbmc-batch
 WS ?= ws
+JOBOS ?= ubuntu16
 
 define encode_options
        '=$(shell echo $(1) | sed 's/ ,/ /g' | sed 's/ /;/g')='
