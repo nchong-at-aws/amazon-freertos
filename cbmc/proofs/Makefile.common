@@ -135,6 +135,8 @@ $(ENTRY).goto: $(ENTRY)8.goto
 %.goto : %.c $(PATCHED)
 	$(GOTO_CC) -o $@ $(INC) $(CFLAGS) $<
 
+goto: $(ENTRY).goto
+
 cbmc.txt: $(ENTRY).goto
 	cbmc $(CBMCFLAGS) --trace $< 2>&1 | tee $@
 
