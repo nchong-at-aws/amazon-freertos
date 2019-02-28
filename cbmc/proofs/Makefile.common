@@ -92,13 +92,13 @@ $(ENTRY)1.goto: $(OBJS)
 
 $(ENTRY)3.goto: $(ENTRY)1.goto
 	 $(GOTO_INSTRUMENT) $(ABSTRACTIONS) --add-library $< $@ \
-		2>&1 | tee $(ENTRY)3.txt ; exit $${PIPESTATUS[0]}
+		> $(ENTRY)3.txt 2>&1
 
 # Simplify and constant propagation may benefit from unwinding first
 $(ENTRY)4.goto: $(ENTRY)3.goto
 ifeq ($(UNWIND_GOTO), 1)
 	$(GOTO_INSTRUMENT) $(UNWINDING) $< $@ \
-		2>&1 | tee $(ENTRY)4.txt ; exit $${PIPESTATUS[0]}
+		> $(ENTRY)4.txt 2>&1
 else
 	cp $< $@
 endif
@@ -107,7 +107,7 @@ endif
 $(ENTRY)5.goto: $(ENTRY)4.goto
 ifeq ($(SIMPLIFY), 1)
 	$(GOTO_INSTRUMENT) --generate-function-body '.*' $< $@ \
-		2>&1 | tee $(ENTRY)5.txt ; exit $${PIPESTATUS[0]}
+		> $(ENTRY)5.txt 2>&1
 else
 	cp $< $@
 endif
@@ -116,18 +116,18 @@ endif
 $(ENTRY)6.goto: $(ENTRY)5.goto
 ifeq ($(SIMPLIFY), 1)
 	$(GOTO_ANALYZER) --simplify $@ $< \
-		2>&1 | tee $(ENTRY)6.txt ; exit $${PIPESTATUS[0]}
+		> $(ENTRY)6.txt 2>&1
 else
 	cp $< $@
 endif
 
 $(ENTRY)7.goto: $(ENTRY)6.goto
 	$(GOTO_INSTRUMENT) --drop-unused-functions $< $@ \
-		2>&1 | tee $(ENTRY)7.txt ; exit $${PIPESTATUS[0]}
+		> $(ENTRY)7.txt 2>&1
 
 $(ENTRY)8.goto: $(ENTRY)7.goto
 	$(GOTO_INSTRUMENT) --slice-global-inits $< $@ \
-		2>&1 | tee $(ENTRY)8.txt ; exit $${PIPESTATUS[0]}
+		> $(ENTRY)8.txt 2>&1
 
 $(ENTRY).goto: $(ENTRY)8.goto
 	cp $< $@
@@ -138,7 +138,7 @@ $(ENTRY).goto: $(ENTRY)8.goto
 goto: $(ENTRY).goto
 
 cbmc.txt: $(ENTRY).goto
-	cbmc $(CBMCFLAGS) --trace $< 2>&1 | tee $@
+	cbmc $(CBMCFLAGS) --trace $< > $@ 2>&1
 
 property.xml: $(ENTRY).goto
 	cbmc $(CBMCFLAGS) --show-properties --xml-ui $< 2>&1 > $@
