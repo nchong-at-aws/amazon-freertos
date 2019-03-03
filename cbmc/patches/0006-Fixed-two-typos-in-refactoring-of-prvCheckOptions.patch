@@ -1,7 +1,7 @@
-From fe981066320a6a8f5d91c82aa372791cd2e17b98 Mon Sep 17 00:00:00 2001
+From a997112b350da63c4e843cebab9d038ace952d62 Mon Sep 17 00:00:00 2001
 From: "Mark R. Tuttle" <mrtuttle@amazon.com>
 Date: Tue, 26 Feb 2019 17:20:06 -0500
-Subject: [PATCH 6/7] Fixed two typos in refactoring of prvCheckOptions
+Subject: [PATCH 6/8] Fixed two typos in refactoring of prvCheckOptions
 
 ---
  lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.c | 4 ++--
@@ -30,5 +30,5 @@ index 8ee080218..06bc6a2d6 100644
  			( *ppxTCPWindow )->usMSS = ( uint16_t ) uxNewMSS;
  			( *ppxSocket )->u.xTCP.usInitMSS = ( uint16_t ) uxNewMSS;
 -- 
-2.20.1
+2.21.0
 
