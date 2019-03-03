@@ -1,7 +1,7 @@
-From 376325d4db1c86b4381b7d691356be171a6ac95d Mon Sep 17 00:00:00 2001
+From 2bd9a53edf88a0c3b8bcacb2c8b80413f229134a Mon Sep 17 00:00:00 2001
 From: Kareem Khazem <karkhaz@amazon.com>
 Date: Thu, 31 Jan 2019 15:14:07 -0800
-Subject: [PATCH 3/7] Remove static storage class from entry points
+Subject: [PATCH 3/8] Remove static storage class from entry points
 
 Many of the entry points we wish to test are marked as being static.
 This commit removes the static keyword from all entry points that we
@@ -120,5 +120,5 @@ index 4bf22a9ef..4e38adc81 100644
  
  /* Logging verbosity level. */
 -- 
-2.20.1
+2.21.0
 

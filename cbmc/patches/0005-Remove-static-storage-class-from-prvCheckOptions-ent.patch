@@ -1,7 +1,7 @@
-From fcb242c630f5b6d6c5f465079bbb2d07a441e974 Mon Sep 17 00:00:00 2001
+From 1bbb907fb816d64777db8429bd8f50e62f2c793e Mon Sep 17 00:00:00 2001
 From: "Mark R. Tuttle" <mrtuttle@amazon.com>
 Date: Sat, 23 Feb 2019 07:46:05 -0500
-Subject: [PATCH 5/7] Remove static storage class from prvCheckOptions entry
+Subject: [PATCH 5/8] Remove static storage class from prvCheckOptions entry
  points
 
 ---
@@ -64,5 +64,5 @@ index 55d342456..8ee080218 100644
  uint32_t ulFirst = ulChar2u32( ( *ppucPtr ) );
  uint32_t ulLast  = ulChar2u32( ( *ppucPtr ) + 4 );
 -- 
-2.20.1
+2.21.0
 

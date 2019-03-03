@@ -1,7 +1,7 @@
-From 55db5d877451de9fe795f0489a84b33611a789e7 Mon Sep 17 00:00:00 2001
+From de70661ee066f4991d7e2611750ccc533bb2afb4 Mon Sep 17 00:00:00 2001
 From: "Mark R. Tuttle" <mrtuttle@amazon.com>
 Date: Tue, 26 Feb 2019 17:24:25 -0500
-Subject: [PATCH 7/7] In prvCheckOptions refactoring, added "return xRet" after
+Subject: [PATCH 7/8] In prvCheckOptions refactoring, added "return xRet" after
  every "xRet="
 
 In the original refactoring, we did return VAL to simulate a break or
@@ -81,5 +81,5 @@ index 06bc6a2d6..c2819f9fc 100644
  
  		#if( ipconfigUSE_TCP_WIN == 1 )
 -- 
-2.20.1
+2.21.0
 

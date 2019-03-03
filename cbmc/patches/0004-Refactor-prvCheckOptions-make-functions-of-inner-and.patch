@@ -1,7 +1,7 @@
-From 24f84bacdba19a2cb779db5a4fea5e3a8a5543f3 Mon Sep 17 00:00:00 2001
+From 95df6606535daf21d4422dafed347170e70d0bd9 Mon Sep 17 00:00:00 2001
 From: Kareem Khazem <karkhaz@amazon.com>
 Date: Mon, 21 Jan 2019 13:05:12 -0800
-Subject: [PATCH 4/7] Refactor prvCheckOptions: make functions of inner and
+Subject: [PATCH 4/8] Refactor prvCheckOptions: make functions of inner and
  outer loops.
 
 ---
@@ -352,5 +352,5 @@ index bf2ffc609..55d342456 100644
  
  #if( ipconfigUSE_TCP_WIN != 0 )
 -- 
-2.20.1
+2.21.0
 
