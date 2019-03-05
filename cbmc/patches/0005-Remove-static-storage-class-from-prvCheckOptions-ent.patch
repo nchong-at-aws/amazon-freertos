@@ -1,4 +1,4 @@
-From 1bbb907fb816d64777db8429bd8f50e62f2c793e Mon Sep 17 00:00:00 2001
+From b9d925df3861011ce9ddcd368f93938736a71813 Mon Sep 17 00:00:00 2001
 From: "Mark R. Tuttle" <mrtuttle@amazon.com>
 Date: Sat, 23 Feb 2019 07:46:05 -0500
 Subject: [PATCH 5/8] Remove static storage class from prvCheckOptions entry
