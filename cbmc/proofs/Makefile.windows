@@ -2,4 +2,5 @@ GOTO_CC=goto-cl
 O_COMPILE_LINK = /Fe
 O_COMPILE_ONLY = /Fo
 O_OPT = /wd4210 /wd4127 /wd4214 /wd4201 /wd4244 /wd4310
-O_RM = rm -f
+O_RM = del
+O_RM_RECURSIVE = del /s

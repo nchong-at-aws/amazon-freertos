@@ -178,11 +178,11 @@ report: cbmc.txt property.xml coverage.xml
 # Rules for cleaning up
 
 clean:
-	$(RM) $(OBJS) $(ENTRY).goto
-	$(RM) $(ENTRY)[0-9].goto $(ENTRY)[0-9].txt
-	$(RM) cbmc.txt property.xml coverage.xml TAGS
-	$(RM) *~ \#*
+	$(O_RM) $(OBJS) $(ENTRY).goto
+	$(O_RM) $(ENTRY)[0-9].goto $(ENTRY)[0-9].txt
+	$(O_RM) cbmc.txt property.xml coverage.xml TAGS
+	$(O_RM) *~ \#*
 
 veryclean: clean
 #	$(MAKE) unpatch
-	$(RM) -r html
+	$(O_RM_RECURSIVE) html

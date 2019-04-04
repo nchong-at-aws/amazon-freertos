@@ -1,3 +1,5 @@
 GOTO_CC=goto-cc
 O_COMPILE_LINK = -o
 O_COMPILE_ONLY = -c -o
+O_RM = $(RM)
+O_RM_RECURSIVE = $(RM) -r
