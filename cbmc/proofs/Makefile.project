@@ -1,13 +1,14 @@
-# If you error out on this line, re-run make specifying your operating
-# system in the OS variable:
+# Intended to be invoked from the proof directories with
 #
 #     make OS=windows ...
+#     make OS=linux ...
 
-#GOTO_CC = goto-cc
+#GOTO_CC = goto-cc or goto-cl in Makefile.$(OS)
 GOTO_INSTRUMENT = goto-instrument
 GOTO_ANALYZER = goto-analyzer
 VIEWER = cbmc-viewer
 
+# Root of FreeRTOS repository (relative to proof directories)
 FREERTOS= ../../..
 
 # ____________________________________________________________________
@@ -150,10 +151,11 @@ cbmc.txt: $(ENTRY).goto
 	cbmc $(CBMCFLAGS) --unwinding-assertions --trace $< > $@ 2>&1
 
 property.xml: $(ENTRY).goto
-	cbmc $(CBMCFLAGS) --show-properties --xml-ui $< 2>&1 > $@
+	cbmc $(CBMCFLAGS) --unwinding-assertions --show-properties --xml-ui $< \
+	  2>&1 > $@
 
 coverage.xml: $(ENTRY).goto
-	cbmc $(filter-out --unwinding-assertions,$(CBMCFLAGS)) --cover location --xml-ui $< 2>&1 > $@
+	cbmc $(CBMCFLAGS) --cover location --xml-ui $< 2>&1 > $@
 
 cbmc: cbmc.txt
 
