@@ -1,0 +1,188 @@
+# If you error out on this line, re-run make specifying your operating
+# system in the OS variable:
+#
+#     make OS=windows ...
+
+#GOTO_CC = goto-cc
+GOTO_INSTRUMENT = goto-instrument
+GOTO_ANALYZER = goto-analyzer
+VIEWER = cbmc-viewer
+
+FREERTOS= ../../..
+
+# ____________________________________________________________________
+# Variables
+#
+# Naming scheme:
+# ``````````````
+# FOO:   Initially empty, users can set on the command line
+# C_FOO: Value of $FOO common to all harnesses, set in this file
+# O_FOO: Value of $FOO specific to the OS we're running on, set in the
+#        makefile for the operating system
+# H_FOO: Value of $FOO specific to a particular harness, set in the
+#        makefile for that harness
+
+# Should be added to C_DEF
+#      -DWIN32 \
+
+C_DEF = \
+  -D_DEBUG \
+  -D__free_rtos__ \
+  -D_CONSOLE \
+  -D_WIN32_WINNT=0x0500 \
+  -DWINVER=0x400 \
+  -D_CRT_SECURE_NO_WARNINGS \
+  -D__PRETTY_FUNCTION__=__FUNCTION__ \
+  #empty
+
+C_INC = \
+  -I$(FREERTOS)/demos/pc/windows/common/config_files \
+  -I$(FREERTOS)/demos/pc/windows/common/application_code/include \
+  -I$(FREERTOS)/demos/common/include \
+  -I$(FREERTOS)/lib/include \
+  -I$(FREERTOS)/lib/include/private \
+  -I$(FREERTOS)/lib/FreeRTOS/include \
+  -I$(FREERTOS)/lib/FreeRTOS/portable/MSVC-MingW \
+  -I$(FREERTOS)/lib/FreeRTOS-Plus-TCP/include \
+  -I$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/portable/BufferManagement \
+  -I$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/portable/Compiler/MSVC \
+  -I$(FREERTOS)/lib/ota/portable/pc/windows \
+  -I$(FREERTOS)/lib/third_party/mbedtls/include \
+  -I$(FREERTOS)/lib/third_party/tracealyzer_recorder/Include \
+  -I$(FREERTOS)/lib/third_party/jsmn \
+  -I$(FREERTOS)/lib/third_party/pkcs11 \
+  -I$(FREERTOS)/lib/third_party/tinycbor \
+  -I$(FREERTOS)/lib/third_party/win_pcap \
+  -I$(FREERTOS)/lib/cbor/src \
+  -I$(FREERTOS)/lib/defender/src \
+  -I$(FREERTOS)/lib/defender/src/metrics \
+  -I$(FREERTOS)/lib/defender/src/report \
+  -I../../include \
+  #empty
+
+C_OPT = -m32
+
+# We add --unwinding-assertions for property checking
+C_CBMCFLAGS = \
+  --object-bits 7 \
+  --32 \
+  --bounds-check \
+  --pointer-check \
+
+INC = \
+  $(INC2) \
+  $(C_INC) $(O_INC) $(H_INC) \
+  # empty
+
+CFLAGS = \
+  $(CFLAGS2) \
+  $(C_DEF) $(O_DEF) $(H_DEF) $(DEF) \
+  $(C_OPT) $(O_OPT) $(H_OPT) $(OPT) \
+  # empty
+
+# We should define H_CBMCFLAGS=--object-bits X for X between 4 and 7
+CBMCFLAGS = \
+  $(CBMCFLAGS2) \
+  $(C_CBMCFLAGS) $(O_CBMCFLAGS) $(H_CBMCFLAGS) \
+  # empty
+
+default: cbmc
+
+# ____________________________________________________________________
+# Rules
+#
+# Rules for building a:FR object files. These are not harness-specific,
+# and several harnesses might depend on a particular a:FR object, so
+# define them all once here.
+
+$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.goto: \
+	$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.c
+	$(GOTO_CC) $(O_COMPILE_ONLY) $@ $(INC) $(CFLAGS) $<
+
+$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.goto: \
+	$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c
+	$(GOTO_CC) $(O_COMPILE_ONLY) $@ $(INC) $(CFLAGS) $<
+
+$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_Stream_Buffer.goto: \
+	$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_Stream_Buffer.c
+	$(GOTO_CC) $(O_COMPILE_ONLY) $@ $(INC) $(CFLAGS) $<
+
+$(FREERTOS)/lib/FreeRTOS/tasks.goto: $(FREERTOS)/lib/FreeRTOS/tasks.c
+	$(GOTO_CC) $(O_COMPILE_ONLY) $@ $(INC) $(CFLAGS) $<
+
+$(FREERTOS)/lib/FreeRTOS/list.goto: $(FREERTOS)/lib/FreeRTOS/list.c
+	$(GOTO_CC) $(O_COMPILE_ONLY) $@ $(INC) $(CFLAGS) $<
+
+# ____________________________________________________________________
+# Rules
+#
+# Rules for building the CBMC harness
+
+$(ENTRY)_harness.goto: $(ENTRY)_harness.c
+	$(GOTO_CC) $(O_COMPILE_ONLY) $@ $(INC) $(CFLAGS) $<
+
+$(ENTRY)1.goto: $(OBJS)
+	$(GOTO_CC) $(O_COMPILE_LINK) $@ --function harness $(OBJS)
+
+$(ENTRY)2.goto: $(ENTRY)1.goto
+	 $(GOTO_INSTRUMENT) --add-library $< $@ \
+		> $(ENTRY)2.txt 2>&1
+
+$(ENTRY)3.goto: $(ENTRY)2.goto
+	$(GOTO_INSTRUMENT) --drop-unused-functions $< $@ \
+		> $(ENTRY)3.txt 2>&1
+
+$(ENTRY)4.goto: $(ENTRY)3.goto
+	$(GOTO_INSTRUMENT) --slice-global-inits $< $@ \
+		> $(ENTRY)4.txt 2>&1
+
+$(ENTRY).goto: $(ENTRY)4.goto
+	cp $< $@
+
+# ____________________________________________________________________
+# Rules
+#
+# Rules for running CBMC
+
+goto: $(ENTRY).goto
+
+cbmc.txt: $(ENTRY).goto
+	cbmc $(CBMCFLAGS) --unwinding-assertions --trace $< > $@ 2>&1
+
+property.xml: $(ENTRY).goto
+	cbmc $(CBMCFLAGS) --show-properties --xml-ui $< 2>&1 > $@
+
+coverage.xml: $(ENTRY).goto
+	cbmc $(filter-out --unwinding-assertions,$(CBMCFLAGS)) --cover location --xml-ui $< 2>&1 > $@
+
+cbmc: cbmc.txt
+
+property: property.xml
+
+coverage: coverage.xml
+
+report: cbmc.txt property.xml coverage.xml
+	$(VIEWER) \
+	--goto $(ENTRY).goto \
+	--srcdir $(abspath $(FREERTOS)) \
+	--blddir $(abspath $(FREERTOS)) \
+	--htmldir html \
+	--srcexclude "(./verification|./tests|./tools|./lib/third_party)" \
+	--result cbmc.txt \
+	--property property.xml \
+	--block coverage.xml
+
+# ____________________________________________________________________
+# Rules
+#
+# Rules for cleaning up
+
+clean:
+	$(RM) $(OBJS) $(ENTRY).goto
+	$(RM) $(ENTRY)[0-9].goto $(ENTRY)[0-9].txt
+	$(RM) cbmc.txt property.xml coverage.xml TAGS
+	$(RM) *~ \#*
+
+veryclean: clean
+#	$(MAKE) unpatch
+	$(RM) -r html
