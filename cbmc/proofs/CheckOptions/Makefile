@@ -15,29 +15,39 @@
 # Makefile-CheckOptionsInner.
 #
 
-ENTRY=CheckOptions
 UNWIND_GOTO=0
-
 BUFFER_SIZE = 100
-
-#Note prvCheckOptions.0 needs to be 41 even though buffer is 16
-
-UNWINDING = \
-	--unwind $(UNWIND) \
-	--unwindset prvCheckOptions.0:41 \
-	--unwinding-assertions
-
-ABSTRACTIONS = \
+UNWINDING = --unwind $(UNWIND) --unwindset prvCheckOptions.0:41 --unwinding-assertions
 
 OBJS = \
-	$(ENTRY)_harness.goto \
-        $(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.goto \
-        $(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.goto \
-        $(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_Stream_Buffer.goto \
-        $(FREERTOS)/lib/FreeRTOS/tasks.goto \
-        $(FREERTOS)/lib/FreeRTOS/list.goto
+  CheckOptions_harness.goto \
+  $(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.goto \
+  $(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.goto \
+  $(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_Stream_Buffer.goto \
+  $(FREERTOS)/lib/FreeRTOS/tasks.goto \
+  $(FREERTOS)/lib/FreeRTOS/list.goto
 
-DEF += \
-	-DBUFFER_SIZE=$(BUFFER_SIZE) \
+H_DEF = -DBUFFER_SIZE=$(BUFFER_SIZE)
 
-include ../Makefile.common
+CheckOptions_compiled.goto: CheckOptions_harness.c
+	$(GOTO_CC) $(O_COMPILE_ONLY) $@ $(INC) $(CFLAGS) $<
+
+CheckOptions_linked.goto: $(OBJS)
+	$(GOTO_CC) $(O_COMPILE_LINK) $@ --function harness $(OBJS)
+
+CheckOptions_library.goto: CheckOptions_linked.goto
+	 $(GOTO_INSTRUMENT) --add-library $< $@ \
+		> CheckOptions_library.txt 2>&1
+
+CheckOptions_drop.goto: CheckOptions_library.goto
+	$(GOTO_INSTRUMENT) --drop-unused-functions $< $@ \
+		> CheckOptions_drop.txt 2>&1
+
+CheckOptions_slice.goto: CheckOptions_drop.goto
+	$(GOTO_INSTRUMENT) --slice-global-inits $< $@ \
+		> CheckOptions_slice.txt 2>&1
+
+CheckOptions.goto: CheckOptions_slice.goto
+	cp $< $@
+
+include ../Makefile.dumb

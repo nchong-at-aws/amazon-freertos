@@ -1,0 +1,2 @@
+O_COMPILE_LINK = -o
+O_COMPILE_ONLY = -c -o
