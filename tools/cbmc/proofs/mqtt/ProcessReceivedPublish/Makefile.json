@@ -1,0 +1,18 @@
+{
+    "ENTRY": "ProcessReceivedPublish",
+    "CBMCFLAGS":
+    [
+        "--unwind 1",
+        "--nondet-static"
+    ],
+    "OBJS":
+    [
+        "$(ENTRY)_harness.goto",
+        "$(FREERTOS)/lib/mqtt/aws_mqtt_lib.goto"
+    ],
+    "DEF":
+    [
+	"mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS=2",
+	"mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH=10"
+    ]
+}
