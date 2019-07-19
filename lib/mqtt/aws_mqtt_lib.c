@@ -597,7 +597,7 @@ static void prvProcessReceivedPINGRESP( MQTTContext_t * pxMQTTContext );
  *
  * @param[in] pxMQTTContext The MQTT context for which the message was received.
  */
-static void prvProcessReceivedPublish( MQTTContext_t * pxMQTTContext );
+void prvProcessReceivedPublish( MQTTContext_t * pxMQTTContext );
 
 /**
  * @brief Invokes the user supplied callback.
@@ -783,7 +783,7 @@ static uint8_t prvDecodeRemainingLength( const uint8_t * const pucEncodedRemaini
  */
 #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
 
-    static MQTTBool_t prvInvokeSubscriptionCallbacks( MQTTContext_t * pxMQTTContext,
+    MQTTBool_t prvInvokeSubscriptionCallbacks( MQTTContext_t * pxMQTTContext,
                                                       const MQTTPublishData_t * pxPublishData,
                                                       MQTTBool_t * pxSubscriptionCallbackInvoked );
 
@@ -1681,7 +1681,7 @@ static void prvProcessReceivedPINGRESP( MQTTContext_t * pxMQTTContext )
 }
 /*-----------------------------------------------------------*/
 
-static void prvProcessReceivedPublish( MQTTContext_t * pxMQTTContext )
+void prvProcessReceivedPublish( MQTTContext_t * pxMQTTContext )
 {
     MQTTEventCallbackParams_t xEventCallbackParams;
     uint8_t ucPacketIdentiferLength; /* Length in bytes taken by the packet identifier field in the received publish packet. */
@@ -2200,7 +2200,7 @@ static uint8_t prvDecodeRemainingLength( const uint8_t * const pucEncodedRemaini
 
 #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
 
-    static MQTTBool_t prvInvokeSubscriptionCallbacks( MQTTContext_t * pxMQTTContext,
+    MQTTBool_t prvInvokeSubscriptionCallbacks( MQTTContext_t * pxMQTTContext,
                                                       const MQTTPublishData_t * pxPublishData,
                                                       MQTTBool_t * pxSubscriptionCallbackInvoked )
     {
