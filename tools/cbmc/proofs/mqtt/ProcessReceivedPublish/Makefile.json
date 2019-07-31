@@ -8,10 +8,13 @@
     "OBJS":
     [
         "$(ENTRY)_harness.goto",
+	"util.goto",
+	"mqtt_type.goto",
         "$(FREERTOS)/lib/mqtt/aws_mqtt_lib.goto"
     ],
     "DEF":
     [
+	"MQTT_BUFFER_USER_DATA_LENGTH=100",
 	"mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS=2",
 	"mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH=10"
     ]
