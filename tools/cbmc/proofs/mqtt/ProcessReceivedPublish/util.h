@@ -5,7 +5,7 @@
 #define IMPLIES(a, b) (!(a) || (b))
 
 /* This should be fined in the Makefile.common and used with --object-bits */
-#define CBMC_OBJECT_BITS (4)
+#define CBMC_OBJECT_BITS (7)
 
 /*
  * CBMC has an internal representation in which each object has an

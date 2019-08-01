@@ -1,9 +1,18 @@
 {
     "ENTRY": "ProcessReceivedPublish",
+
+    "MAX_SUBSCRIPTIONS": "2",
+    "MAX_TOPIC_LENGTH": "10",
+
+    "MAX_SUBSCRIPTIONS_PLUS_1": "__eval {MAX_SUBSCRIPTIONS} + 1",
+    "MAX_TOPIC_LENGTH_PLUS_1": "__eval {MAX_TOPIC_LENGTH} + 1",
+
     "CBMCFLAGS":
     [
         "--unwind 1",
-        "--nondet-static"
+        "--nondet-static",
+
+	"--unwindset prvInvokeSubscriptionCallbacks.0:{MAX_SUBSCRIPTIONS_PLUS_1},prvInvokeSubscriptionCallbacks.1:{MAX_SUBSCRIPTIONS_PLUS_1},memcmp.0:{MAX_TOPIC_LENGTH_PLUS_1}"
     ],
     "OBJS":
     [
@@ -15,7 +24,7 @@
     "DEF":
     [
 	"MQTT_BUFFER_USER_DATA_LENGTH=100",
-	"mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS=2",
-	"mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH=10"
+	"mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS={MAX_SUBSCRIPTIONS}",
+	"mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH={MAX_TOPIC_LENGTH}"
     ]
 }
