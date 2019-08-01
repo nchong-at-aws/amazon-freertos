@@ -12,7 +12,7 @@
         "--unwind 1",
         "--nondet-static",
 
-	"--unwindset prvInvokeSubscriptionCallbacks.0:{MAX_SUBSCRIPTIONS_PLUS_1},prvInvokeSubscriptionCallbacks.1:{MAX_SUBSCRIPTIONS_PLUS_1},memcmp.0:{MAX_TOPIC_LENGTH_PLUS_1}"
+	"--unwindset prvInvokeSubscriptionCallbacks.0:{MAX_SUBSCRIPTIONS_PLUS_1},prvInvokeSubscriptionCallbacks.1:{MAX_SUBSCRIPTIONS_PLUS_1},memcmp.0:{MAX_TOPIC_LENGTH_PLUS_1},allocate_MQTTSubscriptionManager.0:{MAX_SUBSCRIPTIONS_PLUS_1},is_valid_MQTTSubscriptionManager.0:{MAX_SUBSCRIPTIONS_PLUS_1},prvDoesTopicMatchTopicFilter.0:{MAX_TOPIC_LENGTH_PLUS_1},prvDoesTopicMatchTopicFilter.1:{MAX_TOPIC_LENGTH_PLUS_1}"
     ],
     "OBJS":
     [
