@@ -38,19 +38,25 @@
  *
  * This gives the user flexibility of registering a callback per topic.
  */
+#ifndef mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
 #define mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT            ( 1 )
+#endif
 
 /**
  * @brief Maximum length of the topic which can be stored in subscription
  * manager.
  */
+#ifndef mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH
 #define mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH     ( 128 )
+#endif
 
 /**
  * @brief Maximum number of subscriptions which can be stored in subscription
  * manager.
  */
+#ifndef mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS
 #define mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS    ( 8 )
+#endif
 
 /*
  * Uncomment the following two lines to enable asserts.
