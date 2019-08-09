@@ -23,6 +23,9 @@
  * http://www.FreeRTOS.org
  */
 
+#define CBMC_FORCE_POINTER(ptr, val) __CPROVER_assert(ptr==val, "ptr==val"); __CPROVER_assume(ptr==val);
+#define CBMC_FORCE_POINTER_NULL(ptr) __CPROVER_assert(!ptr, "ptr==NULL"); __CPROVER_assume(!ptr);
+
 /**
  * @file iot_https_client.h
  * @brief Implementation of the user-facing functions of the Amazon FreeRTOS HTTPS Client library.
@@ -519,7 +522,8 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
  * @param[in] pJob Pointer the to the HTTP request sending job.
  * @param[in] pContext Pointer to an HTTP request, passed as an opaque context.
  */
-static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
+//static
+void _sendHttpsRequest( IotTaskPool_t pTaskPool,
                                IotTaskPoolJob_t pJob,
                                void * pUserContext );
 
@@ -932,6 +936,7 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync( _httpsResponse_t * pHttpsRes
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
+    CBMC_FORCE_POINTER_NULL(pHttpsResponse->pCallbacks->readReadyCallback);
     if( pHttpsResponse->pCallbacks->readReadyCallback )
     {
         /* If there is still more body that has not been passed back to the user, then this callback is invoked again. */
@@ -1181,6 +1186,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
     /* Report errors back to the application. */
     if( HTTPS_FAILED( status ) )
     {
+        CBMC_FORCE_POINTER_NULL(pCurrentHttpsResponse->pCallbacks->errorCallback);
         if( pCurrentHttpsResponse->isAsync && pCurrentHttpsResponse->pCallbacks->errorCallback )
         {
             pCurrentHttpsResponse->pCallbacks->errorCallback( pCurrentHttpsResponse->pUserPrivData, NULL, pCurrentHttpsResponse, status );
@@ -1197,6 +1203,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
         IotLogDebug( "Disconnecting response %d.", pCurrentHttpsResponse );
         disconnectStatus = IotHttpsClient_Disconnect( pHttpsConnection );
 
+	CBMC_FORCE_POINTER_NULL(pCurrentHttpsResponse->pCallbacks->connectionClosedCallback);
         if( ( pCurrentHttpsResponse != NULL ) && pCurrentHttpsResponse->isAsync && pCurrentHttpsResponse->pCallbacks->connectionClosedCallback )
         {
             pCurrentHttpsResponse->pCallbacks->connectionClosedCallback( pCurrentHttpsResponse->pUserPrivData, pHttpsConnection, disconnectStatus );
@@ -1256,6 +1263,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
                 {
                     IotLogError( "Error scheduling HTTPS request %d. Error code: %d", pNextHttpsRequest, scheduleStatus );
 
+		    CBMC_FORCE_POINTER_NULL(pNextHttpsRequest->pCallbacks->errorCallback);
                     if( pNextHttpsRequest->isAsync && pNextHttpsRequest->pCallbacks->errorCallback )
                     {
                         pNextHttpsRequest->pCallbacks->errorCallback( pNextHttpsRequest->pUserPrivData, pNextHttpsRequest, NULL, scheduleStatus );
@@ -1288,6 +1296,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
     IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
     /* Signal to a synchronous reponse that the response is complete. */
+    CBMC_FORCE_POINTER_NULL(pCurrentHttpsResponse->pCallbacks->responseCompleteCallback);
     if( pCurrentHttpsResponse->isAsync && pCurrentHttpsResponse->pCallbacks->responseCompleteCallback )
     {
         pCurrentHttpsResponse->pCallbacks->responseCompleteCallback( pCurrentHttpsResponse->pUserPrivData, pCurrentHttpsResponse, status, pCurrentHttpsResponse->status );
@@ -2069,7 +2078,8 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
 
 /*-----------------------------------------------------------*/
 
-static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
+//static
+void _sendHttpsRequest( IotTaskPool_t pTaskPool,
                                IotTaskPoolJob_t pJob,
                                void * pUserContext )
 {
@@ -2105,6 +2115,8 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
 
     /* Get the headers from the application. For a synchronous request the application should have appended extra
      * headers before this point. */
+
+    CBMC_FORCE_POINTER_NULL(pHttpsRequest->pCallbacks->appendHeaderCallback);
     if( pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->appendHeaderCallback )
     {
         pHttpsRequest->pCallbacks->appendHeaderCallback( pHttpsRequest->pUserPrivData, pHttpsRequest );
@@ -2118,6 +2130,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
 
     /* Ask the user for data to write body to the network. We only ask the user once. This is so that
      * we can calculate the Content-Length to send.*/
+    CBMC_FORCE_POINTER_NULL(pHttpsRequest->pCallbacks->writeCallback);
     if( pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->writeCallback )
     {
         /* If there is data, then a Content-Length header value will be provided and we send the headers
@@ -2180,6 +2193,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
         pHttpsResponse->syncStatus = status;
 
         /* Return the error status or cancel status to the application for an asynchronous workflow. */
+	CBMC_FORCE_POINTER_NULL(pHttpsRequest->pCallbacks->errorCallback);
         if( pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->errorCallback )
         {
             pHttpsRequest->pCallbacks->errorCallback( pHttpsRequest->pUserPrivData, pHttpsRequest, NULL, status );
@@ -2193,6 +2207,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
             IotLogDebug( "Disconnecting request %d.", pHttpsRequest );
             disconnectStatus = IotHttpsClient_Disconnect( pHttpsConnection );
 
+	    CBMC_FORCE_POINTER_NULL(pHttpsRequest->pCallbacks->connectionClosedCallback);
             if( pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->connectionClosedCallback )
             {
                 pHttpsRequest->pCallbacks->connectionClosedCallback( pHttpsRequest->pUserPrivData,
@@ -2233,6 +2248,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
                     {
                         IotLogError( "Error scheduling HTTPS request %d. Error code: %d", pNextHttpsRequest, scheduleStatus );
 
+			CBMC_FORCE_POINTER_NULL(pHttpsRequest->pCallbacks->errorCallback);
                         if( pNextHttpsRequest->isAsync && pNextHttpsRequest->pCallbacks->errorCallback )
                         {
                             pNextHttpsRequest->pCallbacks->errorCallback( pNextHttpsRequest->pUserPrivData, pNextHttpsRequest, NULL, scheduleStatus );
@@ -2254,6 +2270,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
 
         /* Call the response complete callback. We always call this even if we did not receive the response to
          * let the application know that the request has completed. */
+	CBMC_FORCE_POINTER_NULL(pHttpsRequest->pCallbacks->responseCompleteCallback);
         if( pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->responseCompleteCallback )
         {
             pHttpsRequest->pCallbacks->responseCompleteCallback( pHttpsRequest->pUserPrivData, NULL, status, 0 );
