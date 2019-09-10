@@ -29,6 +29,7 @@ size_t http_parser_execute (http_parser *parser,
   __CPROVER_assert(data, "http_parser_execute data nonnull");
 
   _httpsResponse_t *_httpsResponse = (_httpsResponse_t *)(parser->data);
+
   // Choose whether the parser found the header
   _httpsResponse->foundHeaderField = nondet_bool();
   _httpsResponse->parserState = PARSER_STATE_BODY_COMPLETE;
@@ -91,12 +92,30 @@ size_t IotNetworkInterfaceReceive( void * pConnection,
 				   size_t bytesRequested ) {
   __CPROVER_assert(pConnection, "IotNetworkInterfaceReceive pConnection");
   __CPROVER_assert(pBuffer, "IotNetworkInterfaceReceive pBuffer");
-
+#if 0
   /* Fill the entire memory object pointed to by pBuffer with
    * unconstrained data.  This use of __CPROVER_array_copy with a
    * single byte is a common CBMC idiom. */
   uint8_t byte;
   __CPROVER_array_copy(pBuffer,&byte);
+#endif
+  size_t size;
+  __CPROVER_assume(size <= bytesRequested);
+  return size;
+}
+
+size_t IotNetworkInterfaceReceiveUpto( void * pConnection,
+				   uint8_t * pBuffer,
+                   size_t bytesRequested ) {
+  __CPROVER_assert(pConnection, "IotNetworkInterfaceReceiveUpto pConnection");
+  __CPROVER_assert(pBuffer, "IotNetworkInterfaceReceiveUpto pBuffer");
+#if 0
+  /* Fill the entire memory object pointed to by pBuffer with
+   * unconstrained data.  This use of __CPROVER_array_copy with a
+   * single byte is a common CBMC idiom. */
+  uint8_t byte;
+  __CPROVER_array_copy(pBuffer,&byte);
+#endif
 
   size_t size;
   __CPROVER_assume(size <= bytesRequested);
@@ -130,6 +149,7 @@ IotNetworkInterface_t IOTNI = {
   .close = IotNetworkInterfaceClose,
   .send = IotNetworkInterfaceSend,
   .receive = IotNetworkInterfaceReceive,
+  .receiveUpto = IotNetworkInterfaceReceiveUpto,
   .setReceiveCallback = IotNetworkInterfaceCallback,
   .destroy = IotNetworkInterfaceDestroy
 };
@@ -145,6 +165,7 @@ int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
     netif->close &&
     netif->send &&
     netif->receive &&
+    netif->receiveUpto &&
     netif->setReceiveCallback &&
     netif->destroy;
 }
@@ -161,6 +182,7 @@ int is_stubbed_NetworkInterface(IotNetworkInterface_t *netif) {
     netif->close == IotNetworkInterfaceClose &&
     netif->send == IotNetworkInterfaceSend &&
     netif->receive == IotNetworkInterfaceReceive &&
+    netif->receiveUpto == IotNetworkInterfaceReceiveUpto &&
     netif->setReceiveCallback == IotNetworkInterfaceCallback &&
     netif->destroy == IotNetworkInterfaceDestroy;
 }
@@ -218,17 +240,17 @@ initialize_IotConnectionHandle (IotHttpsConnectionHandle_t
     IotListDouble_Create(&pConnectionHandle->reqQ);
     IotListDouble_Create(&pConnectionHandle->respQ);
     // Add zero or one element to response queue
-    if (nondet_bool()) {
-      IotHttpsResponseHandle_t resp = allocate_IotResponseHandle();
-      __CPROVER_assume(resp);
-      IotListDouble_InsertHead(&pConnectionHandle->respQ, &resp->link);
-    }
-    // Add zero or one element to request queue
-    if (nondet_bool()) {
-      IotHttpsRequestHandle_t req = allocate_IotRequestHandle();
-      __CPROVER_assume(req);
-      IotListDouble_InsertHead(&pConnectionHandle->reqQ, &req->link);
-    }
+  //if (nondet_bool()) {
+  //  IotHttpsResponseHandle_t resp = allocate_IotResponseHandle();
+  //  __CPROVER_assume(resp);
+  //  IotListDouble_InsertHead(&pConnectionHandle->respQ, &resp->link);
+  //}
+  //// Add zero or one element to request queue
+  //if (nondet_bool()) {
+  //  IotHttpsRequestHandle_t req = allocate_IotRequestHandle();
+  //  __CPROVER_assume(req);
+  //  IotListDouble_InsertHead(&pConnectionHandle->reqQ, &req->link);
+  //}
  }
   return pConnectionHandle;
 }
@@ -258,6 +280,8 @@ IotHttpsResponseHandle_t allocate_IotResponseHandle() {
       safeMalloc(pResponseHandle->readHeaderFieldLength);
     pResponseHandle->pReadHeaderValue =
       safeMalloc(pResponseHandle->readHeaderValueLength);
+    pResponseHandle->httpParserInfo.responseParser.data =
+      safeMalloc(sizeof(_httpsResponse_t));
   }
   return pResponseHandle;
 }
@@ -307,6 +331,10 @@ int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
 		   pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders) &&
     __CPROVER_w_ok(pResponseHandle->pHeaders,
 		   pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders) &&
+    __CPROVER_r_ok(pResponseHandle->pHeadersCur,
+                  pResponseHandle->pHeadersEnd - pResponseHandle->pHeadersCur) &&
+    __CPROVER_w_ok(pResponseHandle->pHeadersCur,
+                  pResponseHandle->pHeadersEnd - pResponseHandle->pHeadersCur) &&
     __CPROVER_r_ok(pResponseHandle->pBody,
 		   pResponseHandle->pBodyEnd - pResponseHandle->pBody) &&
     __CPROVER_w_ok(pResponseHandle->pBody,
