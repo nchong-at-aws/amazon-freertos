@@ -32,29 +32,14 @@ void *memcpy(void *dest, const void *src, size_t n) {
 void _networkReceiveCallback( void * pNetworkConnection,
                                      void * pReceiveContext );
 
-#if 0 // TODO
-void stubbed_errorCallback( void * pPrivData,
-                IotHttpsRequestHandle_t reqHandle,
-                IotHttpsResponseHandle_t respHandle,
-                IotHttpsReturnCode_t rc ) {
-}
-
-void stubbed_connectionClosedCallback( void * pPrivData,
-                IotHttpsConnectionHandle_t connHandle,
-                IotHttpsReturnCode_t rc ) {
-}
-
-int is_stubbed_ClientCallback(IotHttpsClientCallbacks_t *ccif) {
-  return
-    ccif->errorCallback == stubbed_errorCallback &&
-    ccif->connectionClosedCallback == stubbed_connectionClosedCallback;
-}
-#endif // TODO
-
-IotHttpsClientCallbacks_t CCIF = { 0 };
+IotHttpsClientCallbacks_t NULL_CCIF = { 0 };
 
 void harness() {
-  void *pNetworkConnection = NULL; //< irrelevant (unused by function under test)
+  // This parameter is irrelevant (unused by the function)
+  size_t pNetworkConnection_size;
+  void *pNetworkConnection = safeMalloc(pNetworkConnection_size);
+
+  // pReceiveContext
   IotHttpsConnectionHandle_t pReceiveContext = allocate_IotConnectionHandle();
   initialize_IotConnectionHandle(pReceiveContext);
   __CPROVER_assume(pReceiveContext);
@@ -67,12 +52,12 @@ void harness() {
     __CPROVER_assume(resp->httpParserInfo.responseParser.data);
     __CPROVER_assume(resp->httpParserInfo.parseFunc == http_parser_execute);
     __CPROVER_assume(is_valid_IotResponseHandle(resp));
-    // TODO: this is required so that http_parser_execute can set resp->parserState to PARSER_STATE_BODY_COMPLETE
+    // Required so that http_parser_execute can set resp->parserState to PARSER_STATE_BODY_COMPLETE
     // to exit the loop in _flushHttpsNetworkData
     ((_httpsResponse_t *)resp->httpParserInfo.responseParser.data) = resp;
-    resp->pCallbacks = &CCIF;
+    // Ensures callbacks are NULL
+    resp->pCallbacks = &NULL_CCIF;
     IotListDouble_InsertHead(&pReceiveContext->respQ, &resp->link);
   }
-  __CPROVER_assume(IotHttpsClient_Init() == IOT_HTTPS_OK);
   _networkReceiveCallback(pNetworkConnection, (void *)pReceiveContext);
 }
