@@ -47,13 +47,7 @@ void harness() {
     __CPROVER_assume(is_valid_IotRequestHandle(reqHandle));
   uint32_t nameLen;
   uint32_t valueLen;
-  __CPROVER_assume(nameLen < UINT32_MAX-1);
-  __CPROVER_assume(valueLen < UINT32_MAX-1);
-  char * pName = safeMalloc(nameLen+1);
-  char * pValue = safeMalloc(valueLen+1);
-  if (pName)
-    pName[nameLen] = 0;
-  if (pValue)
-    pValue[valueLen] = 0;
+  char * pName = allocate_CString(nameLen);
+  char * pValue = allocate_CString(valueLen);
   IotHttpsClient_AddHeader(reqHandle, pName, nameLen, pValue, valueLen);
 }

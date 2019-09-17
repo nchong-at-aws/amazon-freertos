@@ -16,6 +16,18 @@ void *safeMalloc(size_t xWantedSize) {
 }
 
 /****************************************************************
+ * C String
+ ****************************************************************/
+
+/* Return an arbitrary C string. */
+char * allocate_CString(uint32_t len) {
+  __CPROVER_assume(len < UINT32_MAX-1);
+  char * result = safeMalloc(len+1);
+  if (result) result[len] = '\0';
+  return result;
+}
+
+/****************************************************************
  * HTTP parser stubs
  ****************************************************************/
 
